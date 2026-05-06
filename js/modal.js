@@ -66,7 +66,9 @@ export function renderEventsList() {
     eventDiv.appendChild(timeEl);
 
     const titleEl = document.createElement('div');
-    titleEl.innerHTML = `<strong>${escapeHtml(evt.title)}</strong>`;
+    const strong = document.createElement('strong');
+    strong.textContent = evt.title;
+    titleEl.appendChild(strong);
     eventDiv.appendChild(titleEl);
 
     if (evt.memo) {
@@ -124,7 +126,6 @@ export function startEditing(evt) {
 }
 
 export function toggleTimeInput(isAllDay) {
-  els.eventTime.disabled = isAllDay;
   els.eventTime.classList.toggle('disabled', isAllDay);
   if (isAllDay) {
     els.eventTime.value = '';

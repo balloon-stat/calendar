@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マイスケジュール帳</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4a90e2">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <button id="prev-month">← 前月</button>
+      <h1 id="current-month">2026年4月</h1>
+      <button id="next-month">次月 →</button>
+      <button id="today-btn">今日</button>
+    </header>
+
+    <div class="weekdays">
+      <div>日</div><div>月</div><div>火</div><div>水</div>
+      <div>木</div><div>金</div><div>土</div>
+    </div>
+
+    <div id="calendar" class="calendar"></div>
+  </div>
+
+  <!-- 予定モーダル -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-date"></h2>
+        <button id="close-modal">×</button>
+      </div>
+
+      <div id="events-list" class="events-list"></div>
+
+      <div class="add-event-form">
+        <h3 id="form-title">予定を追加</h3>
+
+        <input type="text" id="event-title" placeholder="予定のタイトル" required>
+
+        <!-- 終日チェックボックス -->
+        <label class="all-day-label">
+          <input type="checkbox" id="all-day-check">
+          <span>終日予定</span>
+        </label>
+
+        <input type="time" id="event-time">
+        <textarea id="event-memo" placeholder="メモ（任意）"></textarea> 
+
+        <div class="form-buttons">
+          <button id="cancel-btn">キャンセル</button>
+          <button id="save-event-btn">予定を追加</button>
+        </div>
+    </div>
+  </div>
+
+  <!-- トースト通知 -->
+  <div id="toast" class="toast">
+    <span id="toast-message"></span>
+  </div>
+
+  <script type="module" src="js/calendar.js"></script>
+</body>
+</html>

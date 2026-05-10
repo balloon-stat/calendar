@@ -9,34 +9,34 @@
  * @property {string|null} time 時間 (HH:mm)
  * @property {string} memo メモ
  */
-
 /**
  * 日付文字列 (YYYY-MM-DD)
  * @typedef {string} DateString
  */
-
 /**
  * @typedef {Object<DateString, CalendarEvent[]>} CalendarAllEvents
  */
 
 const STORAGE_KEY = 'schedule-events';
 
-let allEvents = null;
+let allEvents = loadFromStorage();
 
-/**
- * LocalStorageからすべての予定を取得
- * @returns {CalendarAllEvents}
- */
-export function getAllEvents() {
-  if (!allEvents) {
+function loadFromStorage() {
+  try {
     const data = localStorage.getItem(STORAGE_KEY);
-    allEvents = data ? JSON.parse(data) : {};
+    return data ? JSON.parse(data) : {};
+  } catch (e) {
+    console.error('LocalStorageからの読み込みに失敗しました', e);
+    return {};
   }
-  return allEvents;
 }
 
-export function saveAllEvents() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(allEvents));
+function saveAllEvents() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allEvents));
+  } catch (e) {
+    console.error('save に失敗しました', e);
+  }
 }
 
 /**
@@ -45,8 +45,15 @@ export function saveAllEvents() {
  * @returns {CalendarEvent[]}
  */
 export function getEventsByDate(dateStr) {
-  if (!allEvents) allEvents = getAllEvents();
-  return allEvents[dateStr] || [];
+  const events = allEvents[dateStr] || [];
+  
+  return structuredClone(events).sort((a, b) => {
+    if (a.isAllDay && !b.isAllDay) return -1;
+    if (!a.isAllDay && b.isAllDay) return 1;
+    if (a.isAllDay && b.isAllDay) return 0;
+    
+    return (a.time || '00:00').localeCompare(b.time || '00:00');
+  });
 }
 
 /**
@@ -69,8 +76,12 @@ export function pushEvent(evt) {
   if (evt.id) {
     throw new Error('saveEvent: evt に id が存在する');
   }
-
-  if (!allEvents) allEvents = getAllEvents();
+  if (!isValidDateStr(evt.date)) {
+    throw new Error('日付が不正なフォーマット');
+  }
+  if (!evt.title?.trim()) {
+    throw new Error('タイトルがない');
+  }
 
   const dateStr = evt.date;
   if (!allEvents[dateStr]) {
@@ -85,12 +96,24 @@ export function pushEvent(evt) {
 }
 
 /**
- * 予定を書き換えて保存
+ * 予定を書き換えて保存（日付は変わらない）
  * @param {CalendarEvent} evt
  * @returns {boolean} 成功したかどうか
  */
 export function updateEvent(evt) {
-  if (!allEvents) allEvents = getAllEvents();
+  if (!evt.id) {
+    throw new Error('updateEvent: evt に id が存在しない');
+  }
+  if (!evt.date) {
+    throw new Error('updateEvent: evt に date が存在しない');
+  }
+  if (!isValidDateStr(evt.date)) {
+    throw new Error('日付が不正なフォーマット');
+  }
+  if (!evt.title?.trim()) {
+    throw new Error('タイトルがない');
+  }
+
   const dateStr = evt.date;
   if (!allEvents[dateStr]) return false;
 
@@ -111,7 +134,6 @@ export function updateEvent(evt) {
  * @returns {boolean} 成功したかどうか
  */
 export function deleteEvent(dateStr, eventId) {
-  if (!allEvents) allEvents = getAllEvents();
   if (!allEvents[dateStr]) return false;
 
   allEvents[dateStr] = allEvents[dateStr].filter(evt => evt.id !== eventId);
@@ -130,6 +152,7 @@ export function clearAllEvents() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
+// 月遷移
 export function addMonths(dateStr, months) {
   const [y, m] = dateStr.split('-').map(Number);
   const d = new Date(y, m - 1 + months, 1);
@@ -138,5 +161,9 @@ export function addMonths(dateStr, months) {
 
 export function isToday(dateStr) {
   return dateStr === yyyyMMddFormat(new Date());
+}
+
+function isValidDateStr(dateStr) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
 }
 

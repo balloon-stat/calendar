@@ -40,18 +40,6 @@ export function renderEventsList() {
     return;
   }
 
-  // 終日予定を先頭に、時間指定予定をその後にソート
-  events = [...events].sort((a, b) => {
-    if (a.isAllDay !== b.isAllDay) {
-      return a.isAllDay ? -1 : 1;
-    }
-    if (a.isAllDay) return 0;
-
-    const timeA = a.time || '23:59';
-    const timeB = b.time || '23:59';
-    return timeA.localeCompare(timeB);
-  });
-
   events.forEach(evt => {
     const eventDiv = document.createElement('div');
     eventDiv.classList.add('event-item');
@@ -187,15 +175,6 @@ export function handleSave() {
     console.error('予定の保存中にエラーが発生しました:', error);
     showToast('保存に失敗しました。ブラウザのストレージ容量を確認してください。', 'error');
   }
-}
-
-function escapeHtml(unsafe) {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 }
 
 export function showToast(message, type = 'success') {

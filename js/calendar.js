@@ -6,19 +6,16 @@ import { setupModal, openModal, closeModal, handleSave, toggleTimeInput } from '
 
 // export { refreshCalendar }
 
-let els = null;
 document.addEventListener('DOMContentLoaded', () => {
   initElements();
-  els = getElements();
-
   setupUI();
   setupModal();
-
   renderCalendar();
   setupEventListeners();
 });
 
 function setupEventListeners() {
+  const els = getElements();
   // 月移動
   document.getElementById('prev-month').addEventListener('click', () => {
     state.currentDateStr = addMonths(state.currentDateStr, -1);

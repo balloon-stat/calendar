@@ -1,6 +1,6 @@
 // js/ui.js
 import { state, getElements } from './state.js';
-import { getAllEvents, getEventsByDate, yyyyMMddFormat, isToday } from './storage.js';
+import { getEventsByDate, yyyyMMddFormat, isToday } from './storage.js';
 import { openModal } from './modal.js';
 
 let els = null;
@@ -28,8 +28,8 @@ export function renderCalendar() {
   for (let day = 1; day <= lastDate; day++) {
     const currDate = new Date(y, m - 1, day);
     const dateStr = yyyyMMddFormat(currDate);
-    const dayEvents = getEventsByDate(dateStr);
-    const dayEl = createDayElement(day, false, dateStr, dayEvents);
+    const numEvents = getEventsByDate(dateStr).length;
+    const dayEl = createDayElement(day, false, dateStr, numEvents);
     els.calendar.appendChild(dayEl);
   }
 
@@ -45,7 +45,7 @@ export function renderCalendar() {
 }
 
 // 日付セル作成（予定の有無も表示）
-function createDayElement(day, isOtherMonth, dateStr, dayEvents) {
+function createDayElement(day, isOtherMonth, dateStr, numEvents) {
   const dayEl = document.createElement('div');
   dayEl.classList.add('day');
 
@@ -55,8 +55,7 @@ function createDayElement(day, isOtherMonth, dateStr, dayEvents) {
   } else {
     if (isToday(dateStr)) { dayEl.classList.add('today'); }
 
-    drawDots(dayEvents, dayEl);
-
+    drawDots(numEvents, dayEl);
     dayEl.addEventListener('click', () => { openModal(dateStr); });
   }
 
@@ -68,16 +67,12 @@ function createDayElement(day, isOtherMonth, dateStr, dayEvents) {
   return dayEl;
 }
 
-function drawDots(events, dayEl) {
-   //予定があるかチェック
-  if (!events || events.length === 0)
-    return;
-
+function drawDots(numEvents, dayEl) {
   const dotContainer = document.createElement('div');
   dotContainer.classList.add('event-dots');
 
   // 青いドットを最大3つ表示
-  for (let i = 0; i < Math.min(3, events.length); i++) {
+  for (let i = 0; i < Math.min(3, numEvents); i++) {
     const dot = document.createElement('span');
     dot.classList.add('event-dot');
     dotContainer.appendChild(dot);

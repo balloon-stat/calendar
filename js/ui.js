@@ -10,7 +10,7 @@ export function renderCalendar() {
   els.calendar.innerHTML = '';
   const [y, m] = state.currentDateStr.split('-').map(Number);
 
-  els.currentMonth.textContent = `${y}年${m}月`;
+  els.currentMonth.textContent = `${m}月`;
 
   const firstDay = new Date(y, m - 1, 1).getDay();
   const lastDate = new Date(y, m, 0).getDate();

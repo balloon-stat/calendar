@@ -26,13 +26,14 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // キャッシュがあればそれを返す、なければネットワークから取得
-        return response || fetch(event.request);
-      })
-  );
+  event.respondWith(fetch(event.request));
+//event.respondWith(
+//  caches.match(event.request)
+//    .then(response => {
+//      キャッシュがあればそれを返す、なければネットワークから取得
+//       return response || fetch(event.request);
+//   })
+// );
 });
 
 // バージョンアップ時の古いキャッシュ削除

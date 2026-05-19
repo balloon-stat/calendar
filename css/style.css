@@ -49,7 +49,7 @@ body {
 }
 
 .container {
-  max-width: 320px;
+  max-width: 480px;
   margin: 0 auto;
   padding: 0 8px;
 }
@@ -60,7 +60,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 14px;
   margin-bottom: var(--space-xl);
   flex-wrap: wrap;
 }
@@ -69,7 +69,7 @@ header h1 {
   font-size: 1.55rem;
   font-weight: 600;
   color: var(--text-primary);
-  min-width: 60px;
+  min-width: 100px;
   text-align: center;
 }
 
@@ -108,7 +108,7 @@ header button:hover {
 
 .calendar {
   width: 100%;
-  max-width: 320px;
+  max-width: 480px;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 1px;
@@ -122,7 +122,7 @@ header button:hover {
 .day {
   background-color: var(--bg-white);
   min-height: auto;
-  aspect-ratio: 1 / 1.46;
+  aspect-ratio: 1 / 1.1;
   padding: 2px 4px;
   position: relative;
   cursor: pointer;

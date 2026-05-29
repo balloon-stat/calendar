@@ -1,62 +1,62 @@
 // js/calendar.js
-import { yyyyMMddFormat, addMonths } from './storage.js';
-import { state, initElements, getElements } from './state.js';
-import { setupUI, renderCalendar, refreshCalendar } from './ui.js';
-import { setupModal, openModal, closeModal, handleSave, toggleTimeInput } from './modal.js';
+import { closeModal, handleSave, initModal, toggleTimeInput } from "./modal.js";
+import { store } from "./state.js";
+import { initToast } from "./toast.js";
+import { getElement, initUI } from "./ui.js";
 
-// export { refreshCalendar }
-
-document.addEventListener('DOMContentLoaded', () => {
-  initElements();
-  setupUI();
-  setupModal();
-  renderCalendar();
-  setupEventListeners();
+document.addEventListener("DOMContentLoaded", () => {
+	store.init();
+	initUI();
+	const els = getElement();
+	initModal(els);
+	initToast(els);
+	setupEventListeners(els);
 });
 
-function setupEventListeners() {
-  const els = getElements();
-  // 月移動
-  document.getElementById('prev-month').addEventListener('click', () => {
-    state.currentDateStr = addMonths(state.currentDateStr, -1);
-    renderCalendar();
-  });
-  document.getElementById('next-month').addEventListener('click', () => {
-    state.currentDateStr = addMonths(state.currentDateStr, 1);
-    renderCalendar();
-  });
-  document.getElementById('today-btn').addEventListener('click', () => {
-    state.currentDateStr = yyyyMMddFormat(new Date());
-    renderCalendar();
-  });
+function setupEventListeners(els) {
+	// 月移動
+	els.prevMonthBtn.addEventListener("click", () => {
+		store.moveCurrentDate(-1);
+	});
+	els.nextMonthBtn.addEventListener("click", () => {
+		store.moveCurrentDate(1);
+	});
+	els.todayBtn.addEventListener("click", () => {
+		store.setCurrentDate();
+	});
 
-  // 終日チェック
-  els.allDayCheck.addEventListener('change', () => {
-    toggleTimeInput(els.allDayCheck.checked);
-  });
+	// 終日チェック
+	els.allDayCheck.addEventListener("change", () => {
+		toggleTimeInput(els.allDayCheck.checked);
+	});
 
-  // 保存処理（新規追加 または 更新）
-  els.saveBtn.addEventListener('click', handleSave);
+	// 保存処理（新規追加 または 更新）
+	els.saveBtn.addEventListener("click", handleSave);
 
-  els.cancelBtn.addEventListener('click', closeModal);
-  els.closeModalBtn.addEventListener('click', closeModal);
+	els.cancelBtn.addEventListener("click", closeModal);
+	els.closeModalBtn.addEventListener("click", closeModal);
 
-  // モーダルの外側をクリックしても閉じる
-  els.modal.addEventListener('click', (e) => {
-    if (e.target === els.modal) { closeModal(); }
-  });
+	// モーダルの外側をクリックしても閉じる
+	els.modal.addEventListener("click", (e) => {
+		if (e.target === els.modal) {
+			closeModal();
+		}
+	});
 }
 
 // Service Worker登録
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(registration => {
-        console.log('Service Worker registered with scope:', registration.scope);
-      })
-      .catch(error => {
-        console.error('Service Worker registration failed:', error);
-      });
-  });
+if ("serviceWorker" in navigator) {
+	window.addEventListener("load", () => {
+		navigator.serviceWorker
+			.register("./sw.js")
+			.then((registration) => {
+				console.log(
+					"Service Worker registered with scope:",
+					registration.scope,
+				);
+			})
+			.catch((error) => {
+				console.error("Service Worker registration failed:", error);
+			});
+	});
 }
-

@@ -1,38 +1,60 @@
 //js/state.js
-import { yyyyMMddFormat } from './storage.js';
+import { getEventsByDate, loadFromStorage, yyyyMMddFormat } from "./storage.js";
 
-export const state = {
-   currentDateStr: yyyyMMddFormat(new Date()), // 表示されるカレンダーを示す日付
-   selectedDateStr: null,   // 現在モーダルで開いている日付
-   editingEventId: null     // 編集モード時に使用
-};
+export class Store {
+	constructor() {
+		this.state = {
+			currentDateStr: yyyyMMddFormat(new Date()), // 表示されるカレンダーを示す日付
+			selectedDateStr: null, // 現在モーダルで開いている日付
+			editingEventId: null, // 編集モード時に使用
+		};
 
-let elements = null;
+		this.allEvents = {}; // { "YYYY-MM-DD": [event, ...] }
+		this.listeners = new Set(); // 簡易Pub/Sub
+	}
 
-export function initElements() {
-  elements = {
-    calendar: document.getElementById('calendar'),
-    currentMonth: document.getElementById('current-month'),
-    modal: document.getElementById('modal'),
-    modalDate: document.getElementById('modal-date'),
-    eventsList: document.getElementById('events-list'),
-    formTitle: document.getElementById('form-title'),
-    eventTitle: document.getElementById('event-title'),
-    allDayCheck: document.getElementById('all-day-check'),
-    eventTime: document.getElementById('event-time'),
-    eventMemo: document.getElementById('event-memo'),
-    saveBtn: document.getElementById('save-event-btn'),
-    cancelBtn: document.getElementById('cancel-btn'),
-    closeModalBtn: document.getElementById('close-modal'),
-    toast: document.getElementById('toast'),
-    toastMsg: document.getElementById('toast-message')
-  };
+	init() {
+		this.allEvents = loadFromStorage();
+		this.notify();
+	}
+
+	setCurrentDate(dateStr) {
+		if (dateStr) {
+			this.state.currentDateStr = dateStr;
+		} else {
+			this.state.currentDateStr = yyyyMMddFormat(new Date());
+		}
+		this.notify();
+	}
+
+	moveCurrentDate(deltaMonth) {
+		const [y, m] = this.state.currentDateStr.split("-").map(Number);
+		const d = new Date(y, m - 1 + deltaMonth, 1);
+		this.state.currentDateStr = yyyyMMddFormat(d);
+		this.notify();
+	}
+
+	setSelectedDate(dateStr) {
+		this.state.selectedDateStr = dateStr;
+		this.notify();
+	}
+
+	getEvents(dateStr) {
+		return getEventsByDate(this.allEvents, dateStr);
+	}
+	getSelectedDateEvents() {
+		return getEventsByDate(this.allEvents, this.state.selectedDateStr);
+	}
+
+	subscribe(listener) {
+		this.listeners.add(listener);
+		return () => this.listeners.delete(listener);
+	}
+
+	notify() {
+		this.listeners.forEach((listener) => { listener(this.state, this.allEvents) });
+	}
 }
 
-export function getElements() {
-  if (!elements) {
-    throw new Error('DOMが初期化されていません');
-  }
-  return elements;
-}
-
+// シングルトンとしてexport
+export const store = new Store();

@@ -17,26 +17,24 @@
  * @typedef {Object<DateString, CalendarEvent[]>} CalendarAllEvents
  */
 
-const STORAGE_KEY = 'schedule-events';
+const STORAGE_KEY = "schedule-events";
 
-let allEvents = loadFromStorage();
-
-function loadFromStorage() {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : {};
-  } catch (e) {
-    console.error('LocalStorageからの読み込みに失敗しました', e);
-    return {};
-  }
+export function loadFromStorage() {
+	try {
+		const data = localStorage.getItem(STORAGE_KEY);
+		return data ? JSON.parse(data) : {};
+	} catch (e) {
+		console.error("LocalStorageからの読み込みに失敗しました", e);
+		return {};
+	}
 }
 
-function saveAllEvents() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allEvents));
-  } catch (e) {
-    console.error('save に失敗しました', e);
-  }
+function saveAllEvents(allEvents) {
+	try {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(allEvents));
+	} catch (e) {
+		console.error("save に失敗しました", e);
+	}
 }
 
 /**
@@ -44,16 +42,16 @@ function saveAllEvents() {
  * @param {DateString} dateStr
  * @returns {CalendarEvent[]}
  */
-export function getEventsByDate(dateStr) {
-  const events = allEvents[dateStr] || [];
-  
-  return structuredClone(events).sort((a, b) => {
-    if (a.isAllDay && !b.isAllDay) return -1;
-    if (!a.isAllDay && b.isAllDay) return 1;
-    if (a.isAllDay && b.isAllDay) return 0;
-    
-    return (a.time || '00:00').localeCompare(b.time || '00:00');
-  });
+export function getEventsByDate(allEvents, dateStr) {
+	const events = allEvents[dateStr] || [];
+
+	return structuredClone(events).sort((a, b) => {
+		if (a.isAllDay && !b.isAllDay) return -1;
+		if (!a.isAllDay && b.isAllDay) return 1;
+		if (a.isAllDay && b.isAllDay) return 0;
+
+		return (a.time || "00:00").localeCompare(b.time || "00:00");
+	});
 }
 
 /**
@@ -62,37 +60,37 @@ export function getEventsByDate(dateStr) {
  * @returns {DateString}
  */
 export function yyyyMMddFormat(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const day = String(date.getDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
 }
 
 /**
  * 予定を新規追加保存
- * @param {Omit<CalendarEvent, 'id'>} evt 
+ * @param {Omit<CalendarEvent, 'id'>} evt
  */
-export function pushEvent(evt) {
-  if (evt.id) {
-    throw new Error('saveEvent: evt に id が存在する');
-  }
-  if (!isValidDateStr(evt.date)) {
-    throw new Error('日付が不正なフォーマット');
-  }
-  if (!evt.title?.trim()) {
-    throw new Error('タイトルがない');
-  }
+export function pushEvent(allEvents, evt) {
+	if (evt.id) {
+		throw new Error("saveEvent: evt に id が存在する");
+	}
+	if (!isValidDateStr(evt.date)) {
+		throw new Error("日付が不正なフォーマット");
+	}
+	if (!evt.title?.trim()) {
+		throw new Error("タイトルがない");
+	}
 
-  const dateStr = evt.date;
-  if (!allEvents[dateStr]) {
-    allEvents[dateStr] = [];
-  }
+	const dateStr = evt.date;
+	if (!allEvents[dateStr]) {
+		allEvents[dateStr] = [];
+	}
 
-  const e = {...evt};
-  e.id = 'evt-' + Date.now();
-  allEvents[dateStr].push(e);
+	const e = { ...evt };
+	e.id = "evt-" + Date.now();
+	allEvents[dateStr].push(e);
 
-  saveAllEvents();
+	saveAllEvents(allEvents);
 }
 
 /**
@@ -100,31 +98,31 @@ export function pushEvent(evt) {
  * @param {CalendarEvent} evt
  * @returns {boolean} 成功したかどうか
  */
-export function updateEvent(evt) {
-  if (!evt.id) {
-    throw new Error('updateEvent: evt に id が存在しない');
-  }
-  if (!evt.date) {
-    throw new Error('updateEvent: evt に date が存在しない');
-  }
-  if (!isValidDateStr(evt.date)) {
-    throw new Error('日付が不正なフォーマット');
-  }
-  if (!evt.title?.trim()) {
-    throw new Error('タイトルがない');
-  }
+export function updateEvent(allEvents, evt) {
+	if (!evt.id) {
+		throw new Error("updateEvent: evt に id が存在しない");
+	}
+	if (!evt.date) {
+		throw new Error("updateEvent: evt に date が存在しない");
+	}
+	if (!isValidDateStr(evt.date)) {
+		throw new Error("日付が不正なフォーマット");
+	}
+	if (!evt.title?.trim()) {
+		throw new Error("タイトルがない");
+	}
 
-  const dateStr = evt.date;
-  if (!allEvents[dateStr]) return false;
+	const dateStr = evt.date;
+	if (!allEvents[dateStr]) return false;
 
-  const events = allEvents[dateStr];
-  const idx = events.findIndex(e => e.id === evt.id);
+	const events = allEvents[dateStr];
+	const idx = events.findIndex((e) => e.id === evt.id);
 
-  if (idx === -1) return false;
+	if (idx === -1) return false;
 
-  events[idx] = { ...evt };
-  saveAllEvents();
-  return true;
+	events[idx] = { ...evt };
+	saveAllEvents(allEvents);
+	return true;
 }
 
 /**
@@ -133,37 +131,36 @@ export function updateEvent(evt) {
  * @param {string} eventId
  * @returns {boolean} 成功したかどうか
  */
-export function deleteEvent(dateStr, eventId) {
-  if (!allEvents[dateStr]) return false;
+export function deleteEvent(allEvents, dateStr, eventId) {
+	if (!allEvents[dateStr]) return false;
 
-  allEvents[dateStr] = allEvents[dateStr].filter(evt => evt.id !== eventId);
+	allEvents[dateStr] = allEvents[dateStr].filter((evt) => evt.id !== eventId);
 
-  // 予定が0件になった日はキー自体を削除
-  if (allEvents[dateStr].length === 0) {
-    delete allEvents[dateStr];
-  }
+	// 予定が0件になった日はキー自体を削除
+	if (allEvents[dateStr].length === 0) {
+		delete allEvents[dateStr];
+	}
 
-  saveAllEvents();
-  return true;
+	saveAllEvents(allEvents);
+	return true;
 }
 
 // すべてのデータをクリア（デバッグ用）
 export function clearAllEvents() {
-  localStorage.removeItem(STORAGE_KEY);
+	localStorage.removeItem(STORAGE_KEY);
 }
 
 // 月遷移
 export function addMonths(dateStr, months) {
-  const [y, m] = dateStr.split('-').map(Number);
-  const d = new Date(y, m - 1 + months, 1);
-  return yyyyMMddFormat(d);
+	const [y, m] = dateStr.split("-").map(Number);
+	const d = new Date(y, m - 1 + months, 1);
+	return yyyyMMddFormat(d);
 }
 
 export function isToday(dateStr) {
-  return dateStr === yyyyMMddFormat(new Date());
+	return dateStr === yyyyMMddFormat(new Date());
 }
 
 function isValidDateStr(dateStr) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+	return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
 }
-

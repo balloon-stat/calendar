@@ -130,7 +130,6 @@ export function handleSave() {
 		const title = els.eventTitle.value.trim();
 		if (!title) {
 			showToast("予定のタイトルを入力してください", "error");
-			els.eventTitle.focus();
 			return;
 		}
 

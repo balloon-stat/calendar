@@ -4,7 +4,6 @@ import { deleteEvent, pushEvent, updateEvent } from "./storage.js";
 import { showToast } from "./toast.js";
 
 let els = null;
-
 export function initModal(elements) {
 	els = elements;
 }
@@ -50,7 +49,7 @@ export function renderEventsList() {
 		eventDiv.classList.add("event-item");
 
 		const timeDisplay = evt.isAllDay
-			? '<span style="color:#d32f2f; font-weight:bold;">終日</span>'
+			? '<span style="color:#d32f2f;">終日</span>'
 			: evt.time || "";
 
 		const timeEl = document.createElement("div");

@@ -3,10 +3,20 @@ import { openModal } from "./modal.js";
 import { store } from "./state.js";
 import { isToday, yyyyMMddFormat } from "./storage.js";
 
-let els = {};
+export const domCache = new Proxy(
+	{},
+	{
+		get(target, prop) {
+			if (!(prop in target)) {
+				const id = prop.replace(/([A-Z])/g, "-$1").toLowerCase();
+				target[prop] = document.getElementById(id);
+			}
+			return target[prop];
+		},
+	},
+);
 
 export function initUI() {
-	cacheElements();
 	renderAll();
 
 	store.subscribe((state, events) => {
@@ -14,37 +24,10 @@ export function initUI() {
 	});
 }
 
-export function getElement() {
-	return els;
-}
-
-function cacheElements() {
-	els = {
-		calendar: document.getElementById("calendar"),
-		currentMonth: document.getElementById("current-month"),
-		prevMonthBtn: document.getElementById("prev-month"),
-		nextMonthBtn: document.getElementById("next-month"),
-		todayBtn: document.getElementById("today-btn"),
-		modal: document.getElementById("modal"),
-		modalDate: document.getElementById("modal-date"),
-		eventsList: document.getElementById("events-list"),
-		formTitle: document.getElementById("form-title"),
-		eventTitle: document.getElementById("event-title"),
-		allDayCheck: document.getElementById("all-day-check"),
-		eventTime: document.getElementById("event-time"),
-		eventMemo: document.getElementById("event-memo"),
-		cancelBtn: document.getElementById("cancel-btn"),
-		saveBtn: document.getElementById("save-event-btn"),
-		closeModalBtn: document.getElementById("close-modal"),
-		toast: document.getElementById("toast"),
-		toastMsg: document.getElementById("toast-message"),
-	};
-}
-
-function renderAll(state = store.state, allEvents = store.allEvents) {
+function renderAll(state = store.state) {
 	const [y, m] = state.currentDateStr.split("-").map(Number);
-	els.currentMonth.textContent = `${m}月`;
-	renderCalendar(y, m, els.calendar);
+	domCache.currentMonth.textContent = `${y}年 ${m}月`;
+	renderCalendar(y, m, domCache.calendar);
 }
 
 function renderCalendar(y, m, calendar) {

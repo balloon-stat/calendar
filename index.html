@@ -8,14 +8,18 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4a90e2">
 
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/calendar-grid.css">
+  <link rel="stylesheet" href="css/modal.css">
+  <link rel="stylesheet" href="css/ui.css">
+  <link rel="stylesheet" href="css/toast.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <button id="prev-month">← 前月</button>
+      <button id="prev-month-btn">← 前月</button>
       <h1 id="current-month">4月</h1>
-      <button id="next-month">次月 →</button>
+      <button id="next-month-btn">次月 →</button>
       <button id="today-btn">今日</button>
     </header>
 
@@ -32,7 +36,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2 id="modal-date"></h2>
-        <button id="close-modal">×</button>
+        <button id="close-modal-btn">×</button>
       </div>
 
       <div id="events-list" class="events-list"></div>
@@ -52,15 +56,15 @@
         <textarea id="event-memo" placeholder="メモ（任意）"></textarea> 
 
         <div class="form-buttons">
-          <button id="cancel-btn">キャンセル</button>
-          <button id="save-event-btn">予定を追加</button>
+          <button id="close-btn">閉じる</button>
+          <button id="save-btn">予定を追加</button>
         </div>
     </div>
   </div>
 
   <!-- トースト通知 -->
   <div id="toast" class="toast">
-    <span id="toast-message"></span>
+    <span id="toast-msg"></span>
   </div>
 
   <script type="module" src="js/calendar.js"></script>

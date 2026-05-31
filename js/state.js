@@ -52,7 +52,9 @@ export class Store {
 	}
 
 	notify() {
-		this.listeners.forEach((listener) => { listener(this.state, this.allEvents) });
+		this.listeners.forEach((listener) => {
+			listener(this.state, this.allEvents);
+		});
 	}
 }
 

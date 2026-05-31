@@ -2,15 +2,14 @@
 import { closeModal, handleSave, initModal, toggleTimeInput } from "./modal.js";
 import { store } from "./state.js";
 import { initToast } from "./toast.js";
-import { getElement, initUI } from "./ui.js";
+import { domCache, initUI } from "./ui.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 	store.init();
 	initUI();
-	const els = getElement();
-	initModal(els);
-	initToast(els);
-	setupEventListeners(els);
+	initModal(domCache);
+	initToast(domCache);
+	setupEventListeners(domCache);
 });
 
 function setupEventListeners(els) {
@@ -32,8 +31,7 @@ function setupEventListeners(els) {
 
 	// 保存処理（新規追加 または 更新）
 	els.saveBtn.addEventListener("click", handleSave);
-
-	els.cancelBtn.addEventListener("click", closeModal);
+	els.closeBtn.addEventListener("click", closeModal);
 	els.closeModalBtn.addEventListener("click", closeModal);
 
 	// モーダルの外側をクリックしても閉じる

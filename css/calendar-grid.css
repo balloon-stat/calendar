@@ -67,6 +67,25 @@
   text-align: right;
 }
 
+.sunday,
+.day.sunday,
+.day.holiday {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+.saturday,
+.day.saturday {
+  color: #1976d2;
+  font-weight: 600;
+}
+
+/* 今日や選択日の強調を上書きしないよう必要に応じて調整 */
+.day.today.sunday,
+.day.today.holiday {
+  color: #d32f2f;
+}
+
 /* ====================== Event Dots ====================== */
 
 .event-dots {

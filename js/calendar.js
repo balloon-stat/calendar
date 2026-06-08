@@ -1,8 +1,12 @@
 // js/calendar.js
 import { closeModal, handleSave, initModal, toggleTimeInput } from "./modal.js";
-import { store } from "./state.js";
+import { store, loadHolidays } from "./state.js";
 import { initToast } from "./toast.js";
 import { domCache, initUI } from "./ui.js";
+
+const currentYear = new Date().getFullYear();
+await loadHolidays(currentYear);
+await loadHolidays(currentYear + 1);
 
 document.addEventListener("DOMContentLoaded", () => {
 	store.init();

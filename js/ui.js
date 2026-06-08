@@ -1,6 +1,6 @@
 // js/ui.js
 import { openModal } from "./modal.js";
-import { store } from "./state.js";
+import { store, isHoliday } from "./state.js";
 import { isToday, yyyyMMddFormat } from "./storage.js";
 
 export const domCache = new Proxy(
@@ -25,8 +25,8 @@ export function initUI() {
 }
 
 function renderAll(state = store.state) {
-	const [y, m] = state.currentDateStr.split("-").map(Number);
-	domCache.currentMonth.textContent = `${y}年 ${m}月`;
+	const [y, m] = state.currentDateStr.split("-").map(Number).map(String);
+	domCache.currentMonth.textContent = `${y}年${m.padStart(2, " ")}月`;
 	renderCalendar(y, m, domCache.calendar);
 }
 
@@ -40,9 +40,8 @@ function renderCalendar(y, m, calendar) {
 	// 前月（クリック不可）
 	for (let i = firstDay - 1; i >= 0; i--) {
 		const day = prevLastDate - i;
-		const prevDate = new Date(y, m - 2, day);
-		const dateStr = yyyyMMddFormat(prevDate);
-		calendar.appendChild(createDayElement(day, true, dateStr));
+		const date = new Date(y, m - 2, day);
+		calendar.appendChild(createDayElement(day, true, date));
 	}
 
 	// 今月
@@ -50,7 +49,7 @@ function renderCalendar(y, m, calendar) {
 		const currDate = new Date(y, m - 1, day);
 		const dateStr = yyyyMMddFormat(currDate);
 		const numEvents = store.getEvents(dateStr).length;
-		const dayEl = createDayElement(day, false, dateStr, numEvents);
+		const dayEl = createDayElement(day, false, currDate, numEvents);
 		calendar.appendChild(dayEl);
 	}
 
@@ -59,14 +58,15 @@ function renderCalendar(y, m, calendar) {
 	const remaining = totalCells - firstDay - lastDate;
 
 	for (let day = 1; day <= remaining; day++) {
-		const nextDate = new Date(y, m, day);
-		const dateStr = yyyyMMddFormat(nextDate);
-		calendar.appendChild(createDayElement(day, true, dateStr));
+		const date = new Date(y, m, day);
+		calendar.appendChild(createDayElement(day, true, date));
 	}
 }
 
 // 日付セル作成（予定の有無も表示）
-function createDayElement(day, isOtherMonth, dateStr, numEvents) {
+function createDayElement(day, isOtherMonth, date, numEvents) {
+  const dateStr = yyyyMMddFormat(date);
+  const dayOfWeek = date.getDay();
 	const dayEl = document.createElement("div");
 	dayEl.classList.add("day");
 
@@ -77,7 +77,14 @@ function createDayElement(day, isOtherMonth, dateStr, numEvents) {
 		if (isToday(dateStr)) {
 			dayEl.classList.add("today");
 		}
-
+    if (isHoliday(dateStr)) {
+      dayEl.classList.add('holiday');
+    } else if (dayOfWeek === 0) {
+      dayEl.classList.add('sunday');
+    } else if (dayOfWeek === 6) {
+      dayEl.classList.add('saturday');
+    }
+    
 		drawDots(numEvents, dayEl);
 		dayEl.addEventListener("click", () => {
 			openModal(dateStr);
@@ -104,3 +111,4 @@ function drawDots(numEvents, dayEl) {
 	}
 	dayEl.appendChild(dotContainer);
 }
+

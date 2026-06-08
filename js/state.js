@@ -60,3 +60,47 @@ export class Store {
 
 // シングルトンとしてexport
 export const store = new Store();
+
+/////////////////////////////////////////////////////////////////////
+
+let holidays = new Set(); // "YYYY-MM-DD" 形式で格納
+
+export async function loadHolidays(year) {
+  const cacheKey = `holidays-${year}`;
+  const cached = localStorage.getItem(cacheKey);
+  
+  if (cached) {
+    const data = JSON.parse(cached);
+    const hasYear = [...holidays].some(date => date.startsWith(`${year}-`));
+    if (hasYear) {
+      console.log(`${year}年の祝日は既にロード済み`);
+      return;
+    }
+    data.forEach(holiday => {
+      holidays.add(holiday.date); // "2026-01-01" 形式
+    });
+    console.log(`${year}年の祝日をキャッシュから ${holidays.size}件 ロードしました`);
+    return;
+  }
+
+  try {
+    const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/JP`);
+    if (!res.ok) throw new Error('祝日取得失敗');
+    
+    const data = await res.json();
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+    
+    data.forEach(holiday => {
+      holidays.add(holiday.date); // "2026-01-01" 形式
+    });
+    
+    console.log(`${year}年の祝日を ${holidays.size}件 ロードしました`);
+  } catch (err) {
+    console.error('祝日ロードエラー:', err);
+  }
+}
+
+export function isHoliday(dateStr) {
+  return holidays.has(dateStr);
+}
+

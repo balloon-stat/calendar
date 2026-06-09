@@ -1,5 +1,5 @@
 //js/state.js
-import { getEventsByDate, loadFromStorage, yyyyMMddFormat } from "./storage.js";
+import { getEventsByDate, loadFromStorage, saveAllEvents, yyyyMMddFormat } from "./storage.js";
 
 export class Store {
 	constructor() {
@@ -39,6 +39,12 @@ export class Store {
 		this.notify();
 	}
 
+  setAllEvents(allEvents) {
+    saveAllEvents(allEvents) 
+    this.allEvents = allEvents;
+		this.notify();
+	}
+
 	getEvents(dateStr) {
 		return getEventsByDate(this.allEvents, dateStr);
 	}
@@ -63,7 +69,7 @@ export const store = new Store();
 
 /////////////////////////////////////////////////////////////////////
 
-let holidays = new Set(); // "YYYY-MM-DD" 形式で格納
+const holidays = new Set(); // "YYYY-MM-DD" 形式で格納
 
 export async function loadHolidays(year) {
   const cacheKey = `holidays-${year}`;

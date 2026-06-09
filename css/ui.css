@@ -32,3 +32,36 @@ header button:hover {
   border-color: var(--primary);
   color: var(--primary);
 }
+
+.calendar-data-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.calendar-data-buttons button {
+  flex: 1;
+  padding: 14px;
+  font-size: 1.08rem;
+  border-radius: var(--radius-md);
+}
+
+#copy-btn {
+  background-color: #f1f1f1;
+  color: #444;
+  border: 1px solid var(--border);
+}
+
+#copy-btn:hover {
+  background-color: #e0e0e0;
+}
+
+#paste-btn {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+}
+
+#paste-btn:hover {
+  background-color: var(--primary-dark);
+}

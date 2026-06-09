@@ -29,7 +29,7 @@ export function loadFromStorage() {
 	}
 }
 
-function saveAllEvents(allEvents) {
+export function saveAllEvents(allEvents) {
 	try {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(allEvents));
 	} catch (e) {
